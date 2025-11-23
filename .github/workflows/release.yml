@@ -23,8 +23,8 @@ jobs:
         run: bun run build
 
       # Copy _shell.html to 404.html so deep routes work
-      # - name: Create SPA fallback
-      #   run: cp .output/public/_shell.html .output/public/404.html
+      - name: Create SPA fallback
+        run: cp .output/public/_shell.html .output/public/404.html
 
       # Upload only the client output
       - name: Upload static files as artifact
