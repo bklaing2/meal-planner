@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,14 +23,29 @@ jobs:
         run: bun run build
 
       # Copy _shell.html to 404.html so deep routes work
-      - name: Create SPA fallback
-        run: cp .output/public/_shell.html .output/public/404.html
+      # - name: Create SPA fallback
+      #   run: cp .output/public/_shell.html .output/public/404.html
 
       # Upload only the client output
-      - name: Upload Pages artifact
+      - name: Upload static files as artifact
+        id: deployment
         uses: actions/upload-pages-artifact@v4
         with:
-          path: .output/public
+          path: .output/public/
+        
+  deploy:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
 
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Deploy to GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
