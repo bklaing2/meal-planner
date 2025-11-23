@@ -1,0 +1,36 @@
+name: Deploy to GitHub Pages
+
+on:
+  release:
+    types: [published]
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build project
+        run: bun run build
+
+      # Copy _shell.html to 404.html so deep routes work
+      - name: Create SPA fallback
+        run: cp .output/public/_shell.html .output/public/404.html
+
+      # Upload only the client output
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: .output/public
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4
