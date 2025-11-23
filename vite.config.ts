@@ -1,54 +1,23 @@
-import { SvelteKitPWA } from '@vite-pwa/sveltekit'
 import { defineConfig } from 'vite'
-import { sveltekit } from '@sveltejs/kit/vite';
+import { devtools } from '@tanstack/devtools-vite'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import viteReact from '@vitejs/plugin-react'
+import viteTsConfigPaths from 'vite-tsconfig-paths'
+import tailwindcss from '@tailwindcss/vite'
+import { nitro } from 'nitro/vite'
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [sveltekit(), SvelteKitPWA({
-    srcDir: './src',
-    mode: 'development',
-    scope: '/',
-    base: '/',
-    selfDestroying: true,
-    pwaAssets: {
-      config: true,
-    },
-    manifest: {
-      short_name: 'Meal Planner',
-      name: 'Meal Planner',
-      start_url: '/',
-      scope: '/',
-      display: 'standalone',
-      theme_color: "#ffffff",
-      background_color: "#ffffff"
-    },
-    injectManifest: {
-      globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}']
-    },
-    workbox: {
-      globPatterns: ['client/**/*.{js,css,ico,png,svg,webp,woff,woff2}']
-    },
-    devOptions: {
-      enabled: true,
-      suppressWarnings: false,
-      type: 'module',
-      navigateFallback: '/',
-    },
-    // if you have shared info in svelte config file put in a separate module and use it also here
-    // kit: {
-    //   includeVersionFile: true,
-    // }
-
-
-
-
-    // registerType: 'prompt',
-    // injectRegister: false,
-    //
-    // pwaAssets: {
-    //   disabled: false,
-    //   config: true,
-    // },
-
-  })],
+const config = defineConfig({
+  plugins: [
+    devtools(),
+    nitro(),
+    // this is the plugin that enables path aliases
+    viteTsConfigPaths({
+      projects: ['./tsconfig.json'],
+    }),
+    tailwindcss(),
+    tanstackStart({ spa: { enabled: true } }),
+    viteReact(),
+  ],
 })
+
+export default config
