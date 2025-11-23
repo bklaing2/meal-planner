@@ -1,4 +1,6 @@
+import { atomWithStorage } from "jotai/utils";
 // import { queryOptions } from "@tanstack/react-query";
+import type { MassUnit, VolumeUnit } from "@/lib/unit";
 
 export const STORAGE = {
 	weekMeals: "weekMeals",
@@ -24,4 +26,5 @@ export const QUERY_OPTIONS = {
 	// },
 };
 
-export const EXISTS = (o: unknown) => !!o;
+export const massUnitAtom = atomWithStorage<MassUnit>("massUnit", "pound");
+export const volumeUnitAtom = atomWithStorage<VolumeUnit>("volumeUnit", "cup");
