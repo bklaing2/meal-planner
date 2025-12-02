@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAtom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 import { Plus, Trash2 } from "lucide-react";
@@ -25,7 +25,10 @@ import { STORAGE } from "@/lib/constants";
 import { useCreateMeal, useInputState, useMeal, useMeals } from "@/lib/hooks";
 import type { Id, Meal, NoId, On } from "@/lib/types";
 
-export const weekMealsAtom = atomWithStorage(STORAGE.weekMeals, [] as Id<Meal>[]);
+export const weekMealsAtom = atomWithStorage(
+  STORAGE.weekMeals,
+  [] as Id<Meal>[],
+);
 
 function useWeekMeals() {
   const [weekMeals, setWeekMeals] = useAtom(weekMealsAtom);
@@ -33,7 +36,7 @@ function useWeekMeals() {
   const remove = (meal: Meal) =>
     setWeekMeals((ids) => ids.filter((id) => id !== meal.id));
 
-  return [weekMeals, add, remove] as const
+  return [weekMeals, add, remove] as const;
 }
 
 export const Route = createFileRoute("/week")({
@@ -68,7 +71,9 @@ function MealItem(props: { id: Id<Meal>; onRemove: On<Meal> }) {
   return (
     <Item key={meal.id}>
       <ItemContent className="gap-1">
-        <ItemTitle>{meal.name}</ItemTitle>
+        <Link to={`/meals/$mealId`} params={{ mealId: `${meal.id}` }}>
+          <ItemTitle>{meal.name}</ItemTitle>
+        </Link>
       </ItemContent>
       <ItemActions>
         <Button
