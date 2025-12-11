@@ -19,5 +19,3 @@ The website is designed such that it can easily be hosted on [GitHub Pages](http
 - [Tailwind](https://github.com/tailwindlabs/tailwindcss)
 - [shadcn/ui](https://github.com/shadcn-ui/ui)
 - [Dexie.js](https://github.com/dexie/Dexie.js)
-
-**Full Changelog**: https://github.com/bklaing2/meal-planner/commits/v0.0.0
