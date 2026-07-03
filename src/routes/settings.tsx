@@ -16,7 +16,8 @@ function RouteComponent() {
   return (
     <Button
       onClick={async () => {
-        copyToClipboard(JSON.stringify(await fetchData()));
+        await copyToClipboard(JSON.stringify(await fetchData()));
+        alert("Data copied to clipboard as JSON");
       }}
     >
       Copy data to clipboard as JSON
