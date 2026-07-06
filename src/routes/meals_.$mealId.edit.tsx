@@ -33,6 +33,7 @@ import {
 	FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { NEW_MEAL } from "@/lib/constants";
 import { db } from "@/lib/db";
 import {
 	useArrayState,
@@ -480,7 +481,7 @@ async function fetchMeal(mealId: string): Promise<Meal> {
 			search: { error: "Meal not found" },
 		});
 
-	if (mealId === "new") return { id: -1, name: "", ingredients: [] };
+	if (mealId === "new") return NEW_MEAL;
 
 	const meals = await db.meals
 		.where("id")

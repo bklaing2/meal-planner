@@ -2,6 +2,7 @@ import { redirect } from "@tanstack/react-router";
 import type { EntityTable } from "dexie";
 import { db } from "@/lib/db";
 import type { Id, Ingredient, Meal, NoId } from "@/lib/types";
+import { NEW_INGREDIENT, NEW_MEAL } from "./constants";
 
 // Helpers
 const REGEX_ARGS = [/[.*+?^${}()|[\]\\]/g, "\\$&"] as const;
@@ -34,7 +35,7 @@ export async function fetchIngredient(id: Id<Ingredient> | "new") {
 			search: { error: "Ingredient not found" },
 		});
 
-	if (id === "new") return { id: -1, name: "" };
+	if (id === "new") return NEW_INGREDIENT;
 
 	const ingredients = await db.ingredients
 		.where("id")
@@ -70,7 +71,7 @@ export async function fetchMeal(id: Id<Meal> | "new"): Promise<Meal> {
 			search: { error: "Meal not found" },
 		});
 
-	if (id === "new") return { id: -1, name: "", ingredients: [] };
+	if (id === "new") return NEW_MEAL;
 
 	const meals = await db.meals
 		.where("id")
