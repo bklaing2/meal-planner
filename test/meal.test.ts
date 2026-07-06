@@ -1,6 +1,6 @@
-import { test, expect } from "vitest";
+import { expect, test } from "vitest";
 import * as mealActions from "@/lib/meal";
-import { mealWithNoIngredients, mockMeals } from "./mocks/meal";
+import { mealWithNoIngredients, mockMeal, mockMeals } from "./mocks/meal";
 
 test("GetAll", async () => {
   const result = await mealActions.GetAllMeals();
@@ -16,8 +16,8 @@ test("GetByIds", async () => {
 });
 
 test("GetById", async () => {
-  const result = await mealActions.GetMealById(mockMeals[1].id);
-  expect(result).toEqual(mockMeals[1]);
+  const result = await mealActions.GetMealById(mockMeal.id);
+  expect(result).toEqual(mockMeal);
 });
 
 test("GetById - throws error when no meal found", async () => {
@@ -67,7 +67,7 @@ test("Create - throws error when name is empty", async () => {
 
 test("Rename", async () => {
   const newName = "renamed meal";
-  const mealId = mockMeals[0].id;
+  const mealId = mockMeal.id;
   await mealActions.RenameMeal(mealId, newName);
   const result = await mealActions.GetMealById(mealId);
   expect(result.name).toBe(newName);
@@ -75,7 +75,7 @@ test("Rename", async () => {
 
 test("Rename - throws error when name is empty", async () => {
   const newName = "";
-  const mealId = mockMeals[0].id;
+  const mealId = mockMeal.id;
   const rename = () => mealActions.RenameMeal(mealId, newName);
   await expect(rename).rejects.toThrow("Meal name cannot be empty");
 });

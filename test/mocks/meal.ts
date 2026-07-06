@@ -1,5 +1,5 @@
 import type { Meal } from "@/lib/types";
-import { mockIngredients } from "./ingredient";
+import { mockIngredient, mockIngredients } from "./ingredient";
 
 export const mealWithNoIngredients: Meal = {
   id: 1,
@@ -10,7 +10,7 @@ export const mealWithNoIngredients: Meal = {
 export const mealWithOneIngredient: Meal = {
   id: 2,
   name: "meal (with one ingredient)",
-  ingredients: [{ id: mockIngredients[0].id, amount: 1, unit: "pound" }],
+  ingredients: [{ id: mockIngredient.id, amount: 1, unit: "pound" }],
 };
 
 export const mealWithIngredients: Meal = {
@@ -22,6 +22,8 @@ export const mealWithIngredients: Meal = {
     { id: mockIngredients[3].id, amount: 3 },
   ],
 };
+
+export const mockMeal = mealWithIngredients;
 
 export const mockMeals = [
   mealWithNoIngredients,

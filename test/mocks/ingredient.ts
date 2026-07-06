@@ -1,7 +1,9 @@
 import type { Ingredient } from "@/lib/types";
 
+export const mockIngredient: Ingredient = { id: 1, name: "ingredient 1" };
+
 export const mockIngredients: Ingredient[] = [
-  { id: 1, name: "ingredient 1" },
+  mockIngredient,
   { id: 2, name: "ingredient 2" },
   { id: 3, name: "ingredient 3" },
   { id: 4, name: "ingredient 4" },
