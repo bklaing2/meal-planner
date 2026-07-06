@@ -1,12 +1,13 @@
+import { Meal } from "@/lib/types"
 import { mockIngredients } from "./ingredient"
 
-export const mealWithNoIngredients = {
+export const mealWithNoIngredients: Meal = {
   id: 1,
   name: "meal (no ingredients)",
   ingredients: []
 }
 
-export const mealWithOneIngredient = {
+export const mealWithOneIngredient: Meal = {
   id: 2,
   name: "meal (with one ingredient)",
   ingredients: [
@@ -14,7 +15,7 @@ export const mealWithOneIngredient = {
   ]
 }
 
-export const mealWithIngredients = {
+export const mealWithIngredients: Meal = {
   id: 3,
   name: "meal (with ingredients)",
   ingredients: [

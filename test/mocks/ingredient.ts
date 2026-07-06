@@ -1,4 +1,6 @@
-export const mockIngredients = [
+import { Ingredient } from "@/lib/types";
+
+export const mockIngredients: Ingredient[] = [
   { id: 1, name: "ingredient 1" },
   { id: 2, name: "ingredient 2" },
   { id: 3, name: "ingredient 3" },
