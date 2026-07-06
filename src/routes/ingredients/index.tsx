@@ -26,12 +26,16 @@ function RouteComponent() {
       >
         <Plus />
       </ButtonLink>
-      <ItemGroup>{ingredients.map(IngredientItem)}</ItemGroup>
+      <IngredientList ingredients={ingredients} />
     </div>
   );
 }
 
-function IngredientItem(ingredient: Ingredient) {
+export function IngredientList(props: { ingredients: Ingredient[] }) {
+  return <ItemGroup>{props.ingredients.map(IngredientItem)}</ItemGroup>;
+}
+
+export function IngredientItem(ingredient: Ingredient) {
   return (
     <Item asChild key={ingredient.id}>
       <Link

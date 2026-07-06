@@ -11,9 +11,12 @@ import {
   FieldSet,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { NEW_INGREDIENT } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { fetchIngredient } from "@/lib/fetch";
 import type { Id, Ingredient } from "@/lib/types";
+
+const IsNew = (ingredient: Ingredient) => ingredient.id === NEW_INGREDIENT.id;
 
 export const Route = createFileRoute("/ingredients_/$ingredientId/edit")({
   component: RouteComponent,
@@ -22,15 +25,39 @@ export const Route = createFileRoute("/ingredients_/$ingredientId/edit")({
 });
 
 function RouteComponent() {
-  const navigate = useNavigate();
   const ingredient = Route.useLoaderData();
 
-  const [name, setName] = useState(ingredient.name);
+  const navigate = useNavigate();
+  const navigateToIngredients = (message: string) => () =>
+    navigate({
+      to: "/ingredients",
+      search: { message },
+      replace: true,
+    });
+
+  return (
+    <EditIngredient
+      ingredient={ingredient}
+      afterSave={navigateToIngredients(
+        IsNew(ingredient) ? "Ingredient added" : "Ingredient updated",
+      )}
+      afterDelete={navigateToIngredients("Ingredient deleted")}
+    />
+  );
+}
+
+export function EditIngredient(props: {
+  ingredient: Ingredient;
+  afterSave?: () => void;
+  afterDelete?: () => void;
+}) {
+  const [name, setName] = useState(props.ingredient.name);
   const updateName = (e: ChangeEvent<HTMLInputElement>) =>
     setName(e.target.value);
+
   const [error, setError] = useState("");
 
-  const isNew = ingredient.id === -1;
+  const isNew = IsNew(props.ingredient);
 
   return (
     <div>
@@ -49,7 +76,9 @@ function RouteComponent() {
             <FieldError>{error}</FieldError>
           </Field>
           <Field orientation="horizontal">
-            <Button onClick={saveIngredient}>Save</Button>
+            <Button onClick={saveIngredient}>
+              {isNew ? "Create" : "Save"}
+            </Button>
             {!isNew && (
               <Button onClick={deleteIngredient} variant="destructive">
                 Delete
@@ -57,7 +86,7 @@ function RouteComponent() {
             )}
             <ButtonLink
               to="/ingredients/$ingredientId"
-              params={{ ingredientId: `${ingredient.id}` }}
+              params={{ ingredientId: `${props.ingredient.id}` }}
               variant="outline"
             >
               Cancel
@@ -71,6 +100,7 @@ function RouteComponent() {
   async function saveIngredient() {
     try {
       isNew ? await addIngredient() : await updateIngredient();
+      props.afterSave?.();
     } catch (error: unknown) {
       if (error instanceof Dexie.ConstraintError)
         setError("An ingredient with this name already exists.");
@@ -79,20 +109,14 @@ function RouteComponent() {
 
   async function addIngredient() {
     await db.ingredients.add({ name });
-    navigate({
-      to: "/ingredients",
-      search: { message: "Ingredient added" },
-      replace: true,
-    });
   }
 
   async function updateIngredient() {
-    await db.ingredients.update(ingredient.id, { name });
-    navigate({ to: "/ingredients", search: { message: "Ingredient updated" } });
+    await db.ingredients.update(props.ingredient.id, { name });
   }
 
   async function deleteIngredient() {
-    await db.ingredients.delete(ingredient.id);
-    navigate({ to: "/ingredients", search: { message: "Ingredient deleted" } });
+    await db.ingredients.delete(props.ingredient.id);
+    props.afterDelete?.();
   }
 }
