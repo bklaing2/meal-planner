@@ -1,4 +1,4 @@
-import { Ingredient } from "@/lib/types";
+import type { Ingredient } from "@/lib/types";
 
 export const mockIngredients: Ingredient[] = [
   { id: 1, name: "ingredient 1" },
@@ -11,4 +11,4 @@ export const mockIngredients: Ingredient[] = [
   { id: 8, name: "ingredient 8" },
   { id: 9, name: "ingredient 9" },
   { id: 10, name: "ingredient 10" },
-]
+];
