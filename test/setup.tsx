@@ -1,9 +1,9 @@
-import { beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, vi } from "vitest";
 import { db } from "@/lib/db";
-import { mockMeals } from "./mocks/meal";
 import { mockIngredients } from "./mocks/ingredient";
+import { mockMeals } from "./mocks/meal";
 
-vi.spyOn(window, "alert").mockImplementation(() => { })
+vi.spyOn(window, "alert").mockImplementation(() => { });
 
 beforeEach(async () => {
   await db.open();

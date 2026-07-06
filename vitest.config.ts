@@ -16,6 +16,6 @@ export default defineConfig({
         { browser: 'webkit' },
       ],
     },
-    setupFiles: ["./test/setup.ts"]
+    setupFiles: ["./test/setup.tsx"]
   },
 })
