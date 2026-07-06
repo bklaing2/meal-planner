@@ -6,6 +6,7 @@ import { mockMeals } from './mocks/meal'
 import { GetAllIngredients } from '@/lib/ingredient'
 import { GetAllMeals } from '@/lib/meal'
 import { db } from '@/lib/db'
+import { wait } from '@/lib/utils'
 
 const dataJson = JSON.stringify({
   ingredients: mockIngredients,
@@ -31,7 +32,7 @@ test("ImportDataFromClipboardButton", async () => {
   const importDataFromClipboardButton = getByText("Import data from clipboard ")
   await importDataFromClipboardButton.click()
 
-  await new Promise(resolve => setTimeout(resolve, 100)) // wait for the import to finish
+  await wait(0.1)
 
   expect(readFromClipboard).toHaveBeenCalledOnce()
   expect(await GetAllIngredients()).toEqual(mockIngredients)

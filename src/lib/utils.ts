@@ -2,7 +2,9 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { db } from "@/lib/db";
 import type { Ingredient, Meal, Optional } from "@/lib/types";
-import { createIngredient, createMeal } from "./fetch";
+
+export const wait = (seconds: number) =>
+  new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
