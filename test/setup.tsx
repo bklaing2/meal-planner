@@ -5,6 +5,21 @@ import { mockMeals } from "./mocks/meal";
 
 vi.spyOn(window, "alert").mockImplementation(() => { });
 
+vi.mock(import("@tanstack/react-router"), async (importOriginal) => {
+  const original = await importOriginal();
+
+  return {
+    ...original,
+    Link: vi.fn(({ to, params, ...props }) => {
+      const searchParams = params
+        ? `?${new URLSearchParams(params).toString()}`
+        : "";
+      const href = (typeof to === "string" ? to : "#") + searchParams;
+      return <a {...props} onClick={(e) => e.preventDefault()} href={href} />;
+    }),
+  };
+});
+
 beforeEach(async () => {
   await db.open();
 
