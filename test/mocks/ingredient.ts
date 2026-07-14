@@ -1,6 +1,9 @@
 import type { Ingredient } from "@/lib/types";
 
-export const mockIngredient: Ingredient = { id: 1, name: "ingredient 1" };
+export const mockIngredient: Ingredient = {
+  id: 1,
+  name: "ingredient 1",
+} as const;
 
 export const mockIngredients: Ingredient[] = [
   mockIngredient,
@@ -13,4 +16,4 @@ export const mockIngredients: Ingredient[] = [
   { id: 8, name: "ingredient 8" },
   { id: 9, name: "ingredient 9" },
   { id: 10, name: "ingredient 10" },
-];
+] as const;
