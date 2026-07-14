@@ -8,6 +8,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -44,6 +45,10 @@ export const Route = createFileRoute("/week")({
 });
 
 function RouteComponent() {
+  return <Week />;
+}
+
+export function Week() {
   const [weekMeals, add, remove] = useWeekMeals();
 
   return (
@@ -55,7 +60,9 @@ function RouteComponent() {
       <AddMeal onSelect={add} />
       <ItemGroup>
         {weekMeals.map((m) => (
-          <MealItem id={m} onRemove={remove} key={m} />
+          <li key={m}>
+            <MealItem id={m} onRemove={remove} />
+          </li>
         ))}
       </ItemGroup>
     </div>
@@ -81,6 +88,7 @@ function MealItem(props: { id: Id<Meal>; onRemove: On<Meal> }) {
           onClick={props.onRemove}
           variant="ghost"
           className="text-destructive-foreground"
+          title="Remove meal from week"
         >
           <Trash2 />
         </Button>
@@ -93,11 +101,14 @@ function AddMeal(props: { onSelect: On<Meal> }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost">
+        <Button variant="ghost" title="Add meal to week">
           <Plus />
         </Button>
       </DialogTrigger>
       <DialogContent>
+        <DialogHeader>
+          <DialogDescription>Add meal for the week</DialogDescription>
+        </DialogHeader>
         <SelectMeal onSelect={props.onSelect} />
         <DialogFooter>
           <DialogClose asChild>
