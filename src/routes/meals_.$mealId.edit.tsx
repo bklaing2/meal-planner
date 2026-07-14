@@ -1,4 +1,3 @@
-import { DialogDescription } from "@radix-ui/react-dialog";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import Dexie from "dexie";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
@@ -20,6 +19,7 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -61,7 +61,7 @@ const mealIngredientAtom = atom((get) => {
   const quantity = get(quantityAtom);
 
   if (!ingredient || !quantity) return null;
-  if (!quantity.amount || !quantity.unit) return null;
+  if (!quantity.amount) return null;
 
   return {
     ...(quantity as Quantity),
@@ -69,23 +69,48 @@ const mealIngredientAtom = atom((get) => {
   };
 });
 
+const IsNew = (meal: Meal) => meal.id === NEW_MEAL.id;
+
 export const Route = createFileRoute("/meals_/$mealId/edit")({
   component: RouteComponent,
   loader: ({ params }) => fetchMeal(params.mealId),
 });
 
 function RouteComponent() {
-  const navigate = useNavigate();
   const meal = Route.useLoaderData();
 
-  const [name, setName] = useState(meal.name);
+  const navigate = useNavigate();
+  const navigateToMeals = (message: string) => () =>
+    navigate({
+      to: "/meals",
+      search: { message },
+      replace: true,
+    });
+
+  return (
+    <EditMeal
+      meal={meal}
+      afterSave={navigateToMeals(IsNew(meal) ? "Meal added" : "Meal updated")}
+      afterDelete={navigateToMeals("Meal deleted")}
+    />
+  );
+}
+
+export function EditMeal(props: {
+  meal: Meal;
+  afterSave?: () => void;
+  afterDelete?: () => void;
+}) {
+  const [name, setName] = useState(props.meal.name);
   const [error, setError] = useState("");
   const updateName = (e: ChangeEvent<HTMLInputElement>) =>
     setName(e.target.value);
 
-  const [ingredients, mutateIngredients] = useArrayState(meal.ingredients);
+  const [ingredients, mutateIngredients] = useArrayState(
+    props.meal.ingredients,
+  );
 
-  const isNew = meal.id === -1;
+  const isNew = props.meal.id === -1;
 
   //  grid-cols-[max-content_1fr_max-content_max-content] items-baseline gap-y-2
   return (
@@ -125,7 +150,7 @@ function RouteComponent() {
             className="grid grid-rows-min-2 gap-1"
             orientation="horizontal"
           >
-            <Button onClick={saveMeal}>Save</Button>
+            <Button onClick={saveMeal}>{isNew ? "Create" : "Save"}</Button>
             {!isNew && (
               <Button onClick={deleteMeal} variant="destructive">
                 Delete
@@ -133,7 +158,7 @@ function RouteComponent() {
             )}
             <ButtonLink
               to="/meals/$mealId"
-              params={{ mealId: `${meal.id}` }}
+              params={{ mealId: `${props.meal.id}` }}
               variant="outline"
               className="col-span-full"
             >
@@ -148,6 +173,7 @@ function RouteComponent() {
   async function saveMeal() {
     try {
       isNew ? await addMeal() : await updateMeal();
+      props.afterSave?.();
     } catch (error: unknown) {
       if (error instanceof Dexie.ConstraintError)
         setError("A meal with this name already exists.");
@@ -156,25 +182,15 @@ function RouteComponent() {
 
   async function addMeal() {
     await db.meals.add({ name, ingredients });
-    navigate({
-      to: "/meals",
-      search: { message: "Meal added" },
-      replace: true,
-    });
   }
 
   async function updateMeal() {
-    await db.meals.update(meal.id, { name, ingredients });
-    navigate({
-      to: "..",
-      params: { mealId: `${meal.id}` },
-      search: { message: "Meal updated" },
-    });
+    await db.meals.update(props.meal.id, { name, ingredients });
   }
 
   async function deleteMeal() {
-    await db.meals.delete(meal.id);
-    navigate({ to: "/meals", search: { message: "Meal deleted" } });
+    await db.meals.delete(props.meal.id);
+    props.afterDelete?.();
   }
 }
 
@@ -184,16 +200,17 @@ function MealIngredients(props: {
   onRemove: On<MealIngredient>;
 }) {
   return (
-    <div className="min-h-0 h-full max-h-full overflow-y-auto col-span-full grid auto-rows-min grid-cols-subgrid">
+    <ul className="min-h-0 h-full max-h-full overflow-y-auto col-span-full grid auto-rows-min grid-cols-subgrid">
       {props.ingredients.map((ing) => (
-        <MealIngredientItem
-          ingredient={ing}
-          onEdit={props.onEdit}
-          onRemove={props.onRemove}
-          key={ing.id}
-        />
+        <li key={ing.id} className="contents">
+          <MealIngredientItem
+            ingredient={ing}
+            onEdit={props.onEdit}
+            onRemove={props.onRemove}
+          />
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
@@ -219,7 +236,7 @@ function MealIngredientItem(props: {
     <>
       <span className="text-foreground">{ingredient.name}</span>
       <span className="text-muted-foreground text-sm ml-6">
-        {amount} {pluralize(amount, unit)}
+        {amount} {unit ? pluralize(amount, unit) : ""}
       </span>
       <EditIngredient
         ingredient={ingredient}
@@ -231,6 +248,7 @@ function MealIngredientItem(props: {
         onClick={props.onRemove}
         variant="ghost"
         className="text-destructive-foreground"
+        title="Remove ingredient from meal"
       >
         <Trash2 />
       </Button>
@@ -246,7 +264,7 @@ function EditIngredient(props: {
   const [quantity, setQuantity] = useState<Optional<Partial<Quantity>>>(
     props.quantity,
   );
-  const valid = !!quantity && !!quantity.amount && !!quantity.unit;
+  const valid = !!quantity && !!quantity.amount;
   const mealIngredient: MealIngredient = {
     ...(quantity as Quantity),
     id: props.ingredient.id,
@@ -255,11 +273,20 @@ function EditIngredient(props: {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" className="text-muted-foreground">
+        <Button
+          variant="ghost"
+          className="text-muted-foreground"
+          title="Edit ingredient"
+        >
           <Pencil />
         </Button>
       </DialogTrigger>
       <DialogContent>
+        <DialogHeader>
+          <DialogDescription>
+            Edit quantity of {props.ingredient.name}
+          </DialogDescription>
+        </DialogHeader>
         <SetQuantity
           ingredient={props.ingredient}
           quantity={quantity}
@@ -292,6 +319,7 @@ function AddIngredient(props: { onSave: On<MealIngredient> }) {
   const setIngredient = useSetAtom(ingredientAtom);
   const [quantity, setQuantity] = useAtom(quantityAtom);
   const mealIngredient = useAtomValue(mealIngredientAtom);
+  const valid = !!quantity && !!quantity.amount; // && !!quantity.unit
 
   function onSave() {
     if (!mealIngredient) throw new Error("Meal ingredient is not set");
@@ -304,11 +332,14 @@ function AddIngredient(props: { onSave: On<MealIngredient> }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost">
+        <Button variant="ghost" title="Add ingredient to meal">
           <Plus />
         </Button>
       </DialogTrigger>
       <DialogContent>
+        <DialogHeader>
+          <DialogDescription>Add new ingredient</DialogDescription>
+        </DialogHeader>
         <StepsCarousel setApi={setApi}>
           <SelectIngredient onSelect={next} />
           <SetQuantity
@@ -319,7 +350,7 @@ function AddIngredient(props: { onSave: On<MealIngredient> }) {
         </StepsCarousel>
         <DialogFooter>
           <DialogClose asChild>
-            <Button onClick={onSave} disabled={!mealIngredient}>
+            <Button onClick={onSave} disabled={!valid}>
               Save
             </Button>
           </DialogClose>
@@ -362,6 +393,7 @@ function SelectIngredient(props: { onSelect: On<Ingredient> }) {
         value={query}
         onChange={changeQuery}
         placeholder="Search Ingredients"
+        aria-label="Search Ingredients"
       />
       <div className="h-60 overflow-y-auto">
         <Ingredients query={query} onSelect={props.onSelect} />
@@ -381,7 +413,7 @@ function SetQuantity(props: {
     props.setQuantity({ ...props.quantity, amount: Number(e.target.value) });
 
   const setUnit = (unit: Quantity["unit"]) =>
-    props.setQuantity({ ...props.quantity, unit });
+    props.setQuantity({ ...props.quantity, unit: unit?.trim() || undefined });
 
   if (!props.ingredient) return null;
 
@@ -393,13 +425,15 @@ function SetQuantity(props: {
       </DialogHeader>
       <div className="h-60 overflow-y-auto grid grid-cols-[5rem_1fr] gap-2">
         <Input
-          value={props.quantity?.amount ?? ""}
+          value={props.quantity?.amount ?? 1}
           onChange={setAmount}
           type="number"
           min={0}
+          aria-label="Quantity Amount"
         />
         <Combobox
-          placeholderButton="Unit"
+          placeholderButton="Unit (optional)"
+          placeholderSearch="Search units..."
           placeholderNoResults="No units found, press enter to use custom unit"
           options={UNITS_ARRAY.map((u) => ({ value: u.key, label: u.key }))}
           open={open}
@@ -408,6 +442,7 @@ function SetQuantity(props: {
           setValue={setUnit}
           className="w-full"
           onSubmitEmpty={setUnit}
+          triggerProps={{ "aria-label": "Quantity Unit Combobox Trigger" }}
         />
       </div>
     </>
