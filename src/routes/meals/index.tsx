@@ -26,9 +26,13 @@ function RouteComponent() {
       >
         <Plus />
       </ButtonLink>
-      <ItemGroup>{meals.map(MealItem)}</ItemGroup>
+      <MealList meals={meals} />
     </div>
   );
+}
+
+export function MealList(props: { meals: Meal[] }) {
+  return <ItemGroup>{props.meals.map(MealItem)}</ItemGroup>;
 }
 
 function MealItem(meal: Meal) {
