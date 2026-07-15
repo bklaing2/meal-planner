@@ -38,9 +38,7 @@ test("ImportDataFromClipboardButton", async () => {
     .spyOn(navigator.clipboard, "readText")
     .mockResolvedValue(dataJson);
   const { getByText } = await render(<ImportDataFromClipboardButton />);
-  const importDataFromClipboardButton = getByText(
-    "Import data from clipboard ",
-  );
+  const importDataFromClipboardButton = getByText("Import data from clipboard");
   await importDataFromClipboardButton.click();
 
   await wait(0.1);
