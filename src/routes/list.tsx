@@ -47,6 +47,12 @@ export const Route = createFileRoute("/list")({
 function RouteComponent() {
   const weekIngredients = useWeekIngredients();
 
+  return <Groceries weekIngredients={weekIngredients} />;
+}
+
+export function Groceries(props: {
+  weekIngredients: { id: Id<Ingredient>; quantities: Quantity[] }[];
+}) {
   return (
     <div
       className="grid grid-cols-1 auto-rows-min size-full
@@ -54,7 +60,7 @@ function RouteComponent() {
     >
       <h2>Ingredients for the Week</h2>
       <ItemGroup>
-        {weekIngredients.map((i) => (
+        {props.weekIngredients.map((i) => (
           <IngredientItem id={i.id} quantities={i.quantities} key={i.id} />
         ))}
       </ItemGroup>
