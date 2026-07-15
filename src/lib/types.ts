@@ -2,25 +2,25 @@ import type { useInputState } from "@/lib/hooks";
 
 export type UnitType = Custom<"mass" | "volume">;
 export type Unit = { type: UnitType; id: string; mult: number };
-export type Quantity = { amount: number; unit: UnitType };
+export type Quantity = { amount: number; unit?: UnitType };
 
 export type Ingredient = {
-	id: number;
-	name: string;
+  id: number;
+  name: string;
 };
 
 export type MealIngredient = Quantity & {
-	id: Id<Ingredient>;
+  id: Id<Ingredient>;
 };
 
 export type Meal = {
-	id: number;
-	name: string;
-	ingredients: MealIngredient[];
+  id: number;
+  name: string;
+  ingredients: MealIngredient[];
 };
 
 export type Storage = {
-	weekMeals: Id<Meal>[];
+  weekMeals: Id<Meal>[];
 };
 
 export type OneOf<T extends unknown[]> = T[number];
